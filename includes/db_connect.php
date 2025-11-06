@@ -1,32 +1,36 @@
 <?php
+// ===============================================
+// Archivo: includes/db_connect.php
+// Propósito: Establecer la conexión PDO con la BD remota de Clever Cloud.
+// ===============================================
+
 // Configuración de la base de datos de Clever Cloud
 $host = 'bdhmh4qavov6mkp1mdv3-mysql.services.clever-cloud.com';
 $db = 'bdhmh4qavov6mkp1mdv3';
 $user = 'u4tct4pdj87hx4jb';
 $pass = 'cUPKiCK3onqgoQPtf6z1';
-$port = 3306; // El puerto debe ser un entero
+$port = 3306; 
 
-// Inicializamos $conn a null.
-$conn = null;
+$pdo = null; // Inicializamos PDO a null
 
-// Intentamos la conexión
 try {
-    // Usamos el constructor de mysqli
-    $conn = new mysqli($host, $user, $pass, $db, $port);
+    // Cadena de conexión DSN para MySQL con PDO
+    $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
     
-    // Si hay un error de conexión (que mysqli maneja internamente)
-    if ($conn->connect_error) {
-        throw new Exception("Fallo en la conexión a MySQLi: " . $conn->connect_error);
-    }
+    // Opciones de configuración
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Lanzar excepciones en caso de error
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,     // Devolver resultados como array asociativo
+        PDO::ATTR_EMULATE_PREPARES   => false,                // Usar prepared statements nativas
+    ];
     
-    // Establecemos el charset para evitar problemas de codificación
-    $conn->set_charset("utf8mb4");
+    // Intentar la conexión
+    $pdo = new PDO($dsn, $user, $pass, $options);
 
-} catch (Exception $e) {
-    // Si la conexión falla, $conn permanece como null o se cierra.
-    $conn = null;
-    // error_log("Error crítico de conexión a la BD: " . $e->getMessage()); 
+} catch (PDOException $e) {
+    // Si la conexión falla, $pdo permanece como null.
+    // El script de registro usará la bandera de error FATAL.
+    // Opcional para debugging: error_log("Error de conexión PDO: " . $e->getMessage()); 
 }
-
-// Ahora, la variable $conn contiene el objeto de conexión O es null.
+// La variable global $pdo se usa en register.php.
 ?>
