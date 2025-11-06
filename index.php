@@ -1,4 +1,9 @@
 <?php
+// ===============================================
+// Archivo: index.php
+// Propósito: Página de bienvenida y redirección si el usuario ya está logueado.
+// ===============================================
+
 // Asegúrate de usar las funciones que definimos previamente para iniciar la sesión de forma segura
 require_once 'includes/functions.php'; 
 start_session_secure();
@@ -20,23 +25,26 @@ if (is_logged_in()) {
           rel="stylesheet" 
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
           crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
     <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
         <div class="card shadow p-4 p-md-5 w-100" style="max-width: 500px;">
             <div class="card-body text-center">
-                <h1 class="card-title mb-4 text-primary">🔐 Sistema de Autenticación</h1>
+                <h1 class="card-title mb-4 text-primary">
+                    <i class="bi bi-shield-lock me-2"></i> Sistema de Autenticación
+                </h1>
                 <p class="lead mb-5">
                     Tu solución segura para registro y acceso de usuarios con PHP y Clever Cloud.
                 </p>
                 
                 <div class="d-grid gap-3">
                     <a href="login.php" class="btn btn-primary btn-lg shadow-sm">
-                        Iniciar Sesión
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
                     </a>
                     
                     <a href="register.php" class="btn btn-outline-secondary btn-lg">
-                        Crear Cuenta
+                        <i class="bi bi-person-plus me-2"></i> Crear Cuenta
                     </a>
                 </div>
             </div>
