@@ -69,7 +69,7 @@ if ($is_admin && $pdo !== null) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUser">
                             <li><h6 class="dropdown-header">Opciones de Cuenta</h6></li>
-                            <li><a class="dropdown-item" href="#">Mi Perfil</a></li> 
+                            <li><a class="dropdown-item" href="perfil.php">Mi Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="logout.php">
@@ -86,6 +86,35 @@ if ($is_admin && $pdo !== null) {
     <div class="content-area container-fluid bg-light">
         <h1 class="mb-4">Bienvenido, <?php echo htmlspecialchars($username); ?></h1>
 
+        <?php 
+        // Parámetros usados por delete_user.php o edit_user.php para notificar resultados
+        $delete_status = $_GET['delete_status'] ?? null;
+        $message = $_GET['message'] ?? null;
+        
+        if ($delete_status && $message): 
+            // Determina la clase de Bootstrap basada en el estado
+            $alert_class = match($delete_status) {
+                'success' => 'alert-success',
+                'error' => 'alert-danger',
+                'warning' => 'alert-warning',
+                default => 'alert-info',
+            };
+            // Determina el ícono de Bootstrap
+            $icon_class = match($delete_status) {
+                'success' => 'bi-check-circle-fill',
+                'error' => 'bi-x-octagon-fill',
+                'warning' => 'bi-exclamation-triangle-fill',
+                default => 'bi-info-circle-fill',
+            };
+        ?>
+            <div class="alert <?php echo $alert_class; ?> d-flex align-items-center mb-4" role="alert">
+                <i class="bi <?php echo $icon_class; ?> me-2"></i>
+                <div>
+                    **Mensaje del Sistema:** <?php echo htmlspecialchars($message); ?>
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="user-home-tab" data-bs-toggle="tab" data-bs-target="#user-home" type="button" role="tab" aria-controls="user-home" aria-selected="true">
@@ -101,13 +130,8 @@ if ($is_admin && $pdo !== null) {
             </li>
             <?php endif; ?>
 
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">
-                    <i class="bi bi-gear me-1"></i> Configuración
-                </button>
-            </li>
-        </ul>
-
+            </ul>
+        
         <div class="tab-content pt-3" id="myTabContent">
             
             <div class="tab-pane fade show active" id="user-home" role="tabpanel" aria-labelledby="user-home-tab">
@@ -175,19 +199,13 @@ if ($is_admin && $pdo !== null) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
                 </div>
             </div>
             <?php endif; ?>
 
-            <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-                <div class="card shadow p-4">
-                    <h2 class="card-title text-secondary mb-3">Ajustes</h2>
-                    <p>Modifica tu contraseña, correo electrónico o preferencias de notificación aquí.</p>
-                </div>
             </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
