@@ -1,0 +1,89 @@
+# Nombre del Workflow
+name: PHP CI/CD
+
+# Evento que dispara el workflow: se ejecuta en cada push y en cada Pull Request a la rama 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Jobs (Tareas) que se ejecutarán
+jobs:
+  # ----------------------------------------------------
+  # JOB 1: INTEGRACIÓN CONTINUA (CI) - Pruebas y Calidad
+  # ----------------------------------------------------
+  ci:
+    name: Integración Continua
+    runs-on: ubuntu-latest
+
+    # Estrategia para probar en diferentes versiones de PHP (opcional, pero buena práctica)
+    strategy:
+      matrix:
+        php-version: ['8.2'] # Se recomienda usar la versión más cercana a la de producción
+
+    steps:
+    # 1. Checkout del Código
+    - name: Checkout del Repositorio
+      uses: actions/checkout@v4
+
+    # 2. Configuración de PHP
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mysqli, pdo_mysql # Aseguramos extensiones de DB
+        tools: composer # Preparamos la herramienta Composer
+        
+    # 3. Instalación de dependencias (si usas Composer)
+    - name: Instalar Dependencias (Composer)
+      run: composer install --no-dev --prefer-dist
+      continue-on-error: true # Permite que el pipeline continúe si no usas Composer
+
+    # 4. Análisis Estático (Linter)
+    - name: Comprobar Sintaxis de PHP (Lint)
+      run: find . -name "*.php" -print0 | xargs -0 -n1 php -l
+      # Busca y verifica errores de sintaxis en todos los archivos .php
+
+    # 5. Ejecución de Pruebas (Simulado)
+    - name: Ejecutar Pruebas Unitarias (simulado)
+      run: echo "Aquí iría la ejecución de tus pruebas PHPUnit o Pest."
+
+    - name: Resumen de CI
+      run: echo "La Integración Continua (CI) ha finalizado exitosamente."
+
+  # ----------------------------------------------------
+  # JOB 2: DESPLIEGUE CONTINUO (CD)
+  # ----------------------------------------------------
+  cd:
+    name: Despliegue Continuo
+    # Solo se ejecuta si el job 'ci' fue exitoso
+    needs: ci
+    # Solo se ejecuta cuando hay un push (no en Pull Requests) y a la rama 'main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: produccion 
+
+    steps:
+    - name: Checkout del Repositorio
+      uses: actions/checkout@v4
+      
+    - name: Configuración del Despliegue por SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        # Clave SSH privada configurada en los Secretos de GitHub
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Despliegue vía SSH/rsync
+      run: |
+        # Agrega la clave pública del host para la conexión
+        ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+        # Sincroniza los archivos del repositorio con el servidor de producción
+        # Excluye carpetas no necesarias en producción
+        rsync -avz --exclude '.git' --exclude '.github' \
+          ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+
+    - name: Resumen de CD
+      run: echo "El Despliegue Continuo (CD) ha finalizado. La aplicación está actualizada."
