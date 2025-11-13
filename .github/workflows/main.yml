@@ -4,9 +4,9 @@ name: PHP CI/CD
 # Evento que dispara el workflow: se ejecuta en cada push y en cada Pull Request a la rama 'main'
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 # Jobs (Tareas) que se ejecutarán
 jobs:
